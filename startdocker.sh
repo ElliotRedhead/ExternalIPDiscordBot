@@ -1,0 +1,1 @@
+docker build -t externalipdiscordbot . && docker run -it --rm --name "externalipdiscordbot" externalipdiscordbot

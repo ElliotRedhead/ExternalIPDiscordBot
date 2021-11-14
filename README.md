@@ -1,6 +1,21 @@
 # ExternalIPDiscordBot
 
-Automatically update Discord bot status to display external IP of a server, useful for non-static IPs.
+Automatically update Discord bot status to display external IP of a server, useful for non-static IPs.  
+Commands to display connection instructions for each service.
+
+## Getting Started
+
+1. Follow the [discord documentation](https://discordpy.readthedocs.io/en/stable/discord.html)
+2. `git clone` this repository
+3. Create a new .env file within the downloaded repository based on the .env default format.
+
+### Running in Docker (Simplified)
+
+4. In a terminal navigate to the repo and run `source startdocker.sh` (Linux) or `bash startdocker.sh` (Windows).
+
+### Running without Docker
+
+4. Run `python externalipdiscordbot.py`
 
 ## Supporting Resources
 
@@ -9,6 +24,4 @@ Automatically update Discord bot status to display external IP of a server, usef
 ## Future Iteration Points
 
 - docstrings
-- extract reusable logic
-- enable multiple instances to be checked
-- extract error strings
+- read from json
