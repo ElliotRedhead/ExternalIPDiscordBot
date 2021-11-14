@@ -1,6 +1,7 @@
 import os
 import logging
 import socket
+import discord
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ logging.basicConfig(
 )
 
 
-async def portIsOpen(ip, port):
+async def port_is_open(ip, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.connect((ip, int(port)))
@@ -30,9 +31,22 @@ async def portIsOpen(ip, port):
         return False
 
 
+def get_external_ip():
+    try:
+        return urllib.request.urlopen("https://ident.me").read().decode("utf8")
+    except urllib.error.URLError as error:
+        logging.error(error)
+        print(f"Could not connect to the specified URL, reason: {error.reason}")
+
+
 @bot.event
 async def on_ready():
     logging.info("Discord bot startup complete, ready to accept requests.")
+    status = discord.Game(get_external_ip())
+    await bot.change_presence(
+        status=discord.Status.online,
+        activity=status,
+    ),
     for guild in bot.guilds:
         print(
             f"{bot.user} is connected to the following guild:\n"
@@ -46,13 +60,9 @@ async def on_ready():
 )
 async def rust(context):
     logging.info(f"{context.author.name} - {context.invoked_with}")
+    external_ip = get_external_ip()
     try:
-        external_ip = urllib.request.urlopen("https://ident.me").read().decode("utf8")
-    except urllib.error.URLError as error:
-        logging.error(error)
-        print(f"Could not connect to the specified URL, reason: {error.reason}")
-    try:
-        if await portIsOpen(external_ip, PING_PORT):
+        if await port_is_open(external_ip, PING_PORT):
             logging.info("Connection successfully made to server.")
             await context.send(
                 f"The server is running, connect with: `client.connect {external_ip}:{CONNECTION_PORT}`"
@@ -62,7 +72,8 @@ async def rust(context):
             await context.send(
                 f"The server may not be running, to attempt connection regardless: `client.connect {external_ip}:{CONNECTION_PORT}`"
             )
-    except Exception:
+    except Exception as exception:
+        logging.warn(exception)
         await context.send(
             "This service encountered an unexpected error, please try again later."
         )
