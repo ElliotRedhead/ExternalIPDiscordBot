@@ -33,7 +33,11 @@ async def port_is_open(ip, port):
 
 def get_external_ip():
     try:
-        return urllib.request.urlopen("https://ident.me").read().decode("utf8")
+        return (
+            urllib.request.urlopen("https://checkip.amazonaws.com")
+            .read()
+            .decode("utf8")
+        )
     except urllib.error.URLError as error:
         logging.error(error)
         print(f"Could not connect to the specified URL, reason: {error.reason}")
