@@ -93,7 +93,7 @@ def create_command(name, ping_port, connection_port):
                     f"The server for {name} may not be running. To attempt connection: `client.connect {external_ip}:{connection_port}`"
                 )
         except Exception as exception:
-            logging.warn(exception)
+            logging.warning(exception)
             await context.send(
                 "This service encountered an unexpected error, please try again later."
             )
