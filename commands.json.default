@@ -1,0 +1,14 @@
+[
+	{
+		"name": "game_one",
+		"type": "game",
+		"ping_port": 2345,
+		"connection_port": 5432
+	},
+	{
+		"name": "game_two",
+		"type": "game",
+		"ping_port": 9001,
+		"connection_port": 9001
+	}
+]

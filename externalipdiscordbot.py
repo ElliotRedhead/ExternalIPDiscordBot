@@ -1,16 +1,15 @@
-import os
+import json
 import logging
+import os
 import socket
-import discord
+import urllib.request
 
+import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-import urllib.request
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
-PING_PORT = os.getenv("PING_PORT")
-CONNECTION_PORT = os.getenv("CONNECTION_PORT")
 
 bot = commands.Bot(command_prefix="!")
 logging.basicConfig(
@@ -43,6 +42,17 @@ def get_external_ip():
         print(f"Could not connect to the specified URL, reason: {error.reason}")
 
 
+async def load_command_settings():
+    file = open("commands.json")
+    json_data = json.load(file)
+    for server_instance in json_data:
+        create_command(
+            server_instance["name"],
+            server_instance["ping_port"],
+            server_instance["connection_port"],
+        )
+
+
 @bot.event
 async def on_ready():
     logging.info("Discord bot startup complete, ready to accept requests.")
@@ -56,31 +66,39 @@ async def on_ready():
             f"{bot.user} is connected to the following guild:\n"
             f"{guild.name}(id: {guild.id})\n"
         )
+    await load_command_settings()
 
 
-@bot.command(
-    name="rust",
-    help="Check if Rust game server is up and write out the command needed to connect.",
-)
-async def rust(context):
-    logging.info(f"{context.author.name} - {context.invoked_with}")
-    external_ip = get_external_ip()
-    try:
-        if await port_is_open(external_ip, PING_PORT):
-            logging.info("Connection successfully made to server.")
+def create_command(name, ping_port, connection_port):
+    @bot.command(
+        name=name,
+        help=f"Check if {name} server is up and message the connect instructions.",
+    )
+    async def server_check(context):
+        logging.info(f"{context.author.name} - {context.invoked_with}")
+        external_ip = get_external_ip()
+        try:
+            if await port_is_open(external_ip, ping_port):
+                logging.info(
+                    "Connection successfully made to {name} server on {ping_port}."
+                )
+                await context.send(
+                    f"The server is running, connect with: `client.connect {external_ip}:{connection_port}`"
+                )
+            else:
+                logging.info(
+                    "Connection could not be made to {name} server on {ping_port}."
+                )
+                await context.send(
+                    f"The server for {name} may not be running. To attempt connection: `client.connect {external_ip}:{connection_port}`"
+                )
+        except Exception as exception:
+            logging.warn(exception)
             await context.send(
-                f"The server is running, connect with: `client.connect {external_ip}:{CONNECTION_PORT}`"
+                "This service encountered an unexpected error, please try again later."
             )
-        else:
-            logging.info("Connection could not be made to server.")
-            await context.send(
-                f"The server may not be running, to attempt connection regardless: `client.connect {external_ip}:{CONNECTION_PORT}`"
-            )
-    except Exception as exception:
-        logging.warn(exception)
-        await context.send(
-            "This service encountered an unexpected error, please try again later."
-        )
+
+    return server_check
 
 
 bot.run(TOKEN)
