@@ -98,14 +98,14 @@ def create_command(name, ping_port, connection_port):
         try:
             if await port_is_open(external_ip, ping_port):
                 logging.info(
-                    "Connection successfully made to {name} server on {ping_port}."
+                    f"Connection successfully made to {name} server on {ping_port}."
                 )
                 await context.send(
                     f"The server is running, connect with: `client.connect {external_ip}:{connection_port}`"
                 )
             else:
                 logging.info(
-                    "Connection could not be made to {name} server on {ping_port}."
+                    f"Connection could not be made to {name} server on {ping_port}."
                 )
                 await context.send(
                     f"The server for {name} may not be running. To attempt connection: `client.connect {external_ip}:{connection_port}`"
