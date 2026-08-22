@@ -45,7 +45,7 @@ def get_external_ip():
         print(f"Could not connect to the specified URL, reason: {error.reason}")
 
 
-async def load_command_settings():
+def load_command_settings():
     file = open("commands.json")
     json_data = json.load(file)
     for server_instance in json_data:
@@ -69,7 +69,6 @@ async def on_ready():
             f"{bot.user} is connected to the following guild:\n"
             f"{guild.name}(id: {guild.id})\n"
         )
-    await load_command_settings()
 
 
 def create_command(name, ping_port, connection_port):
@@ -104,4 +103,5 @@ def create_command(name, ping_port, connection_port):
     return server_check
 
 
+load_command_settings()
 bot.run(TOKEN)
