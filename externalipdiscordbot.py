@@ -5,7 +5,7 @@ import os
 
 import aiohttp
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -59,16 +59,22 @@ def load_command_settings():
         )
 
 
-@bot.event
-async def on_ready():
-    logging.info("Discord bot startup complete, ready to accept requests.")
+@tasks.loop(minutes=5)
+async def update_status():
     external_ip = await get_external_ip()
     if external_ip is not None:
         status = discord.Game(external_ip)
         await bot.change_presence(
             status=discord.Status.online,
             activity=status,
-        ),
+        )
+
+
+@bot.event
+async def on_ready():
+    logging.info("Discord bot startup complete, ready to accept requests.")
+    if not update_status.is_running():
+        update_status.start()
     for guild in bot.guilds:
         print(
             f"{bot.user} is connected to the following guild:\n"
