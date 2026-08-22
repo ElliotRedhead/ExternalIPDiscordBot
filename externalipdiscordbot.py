@@ -38,6 +38,7 @@ def get_external_ip():
             urllib.request.urlopen("https://checkip.amazonaws.com")
             .read()
             .decode("utf8")
+            .strip()
         )
     except urllib.error.URLError as error:
         logging.error(error)
