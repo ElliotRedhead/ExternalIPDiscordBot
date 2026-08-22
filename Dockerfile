@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.14-slim
 
 ADD externalipdiscordbot.py /
 ADD requirements.txt /
