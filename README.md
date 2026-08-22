@@ -5,7 +5,7 @@ Commands to display connection instructions for each service.
 
 ## Getting Started
 
-1. Follow the [discord documentation](https://discordpy.readthedocs.io/en/stable/discord.html)
+1. Follow the [discord documentation](https://discordpy.readthedocs.io/en/stable/discord.html), and enable the **Message Content Intent** under your application's Bot settings (needed for `!` commands).
 2. `git clone` this repository
 3. Create a new .env file within the downloaded repository based on the .env.default format.
 4. Create a new commands.json file within the downloaded repository based on the commands.json.default format.
