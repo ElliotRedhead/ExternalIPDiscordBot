@@ -1,9 +1,9 @@
+import asyncio
 import json
 import logging
 import os
-import socket
-import urllib.request
 
+import aiohttp
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -22,25 +22,27 @@ logging.basicConfig(
 
 
 async def port_is_open(ip, port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        s.connect((ip, int(port)))
-        s.shutdown(2)
+        _, writer = await asyncio.wait_for(
+            asyncio.open_connection(ip, int(port)), timeout=5
+        )
+        writer.close()
+        await writer.wait_closed()
         return True
     except Exception as exception:
         print(f"Could not connect through specified port. {exception}")
         return False
 
 
-def get_external_ip():
+async def get_external_ip():
     try:
-        return (
-            urllib.request.urlopen("https://checkip.amazonaws.com")
-            .read()
-            .decode("utf8")
-            .strip()
-        )
-    except OSError as error:
+        async with aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=10)
+        ) as session:
+            async with session.get("https://checkip.amazonaws.com") as response:
+                response.raise_for_status()
+                return (await response.text()).strip()
+    except (aiohttp.ClientError, asyncio.TimeoutError) as error:
         logging.error(error)
         print(f"Could not connect to the specified URL, reason: {error}")
         return None
@@ -60,7 +62,7 @@ def load_command_settings():
 @bot.event
 async def on_ready():
     logging.info("Discord bot startup complete, ready to accept requests.")
-    external_ip = get_external_ip()
+    external_ip = await get_external_ip()
     if external_ip is not None:
         status = discord.Game(external_ip)
         await bot.change_presence(
@@ -81,7 +83,7 @@ def create_command(name, ping_port, connection_port):
     )
     async def server_check(context):
         logging.info(f"{context.author.name} - {context.invoked_with}")
-        external_ip = get_external_ip()
+        external_ip = await get_external_ip()
         if external_ip is None:
             await context.send(
                 "Could not determine the server's external IP, please try again later."
