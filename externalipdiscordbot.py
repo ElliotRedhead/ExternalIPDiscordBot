@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+if not TOKEN:
+    raise SystemExit("DISCORD_TOKEN is not set, add it to the .env file.")
 
 intents = discord.Intents.default()
 intents.message_content = True
