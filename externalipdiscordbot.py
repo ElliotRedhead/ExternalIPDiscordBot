@@ -15,7 +15,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 logging.basicConfig(
-    filename="externalipdiscordbot.log",
+    handlers=[logging.FileHandler("externalipdiscordbot.log"), logging.StreamHandler()],
     format="%(asctime)s %(message)s",
     level=logging.INFO,
 )
@@ -30,7 +30,7 @@ async def port_is_open(ip, port):
         await writer.wait_closed()
         return True
     except Exception as exception:
-        print(f"Could not connect through specified port. {exception}")
+        logging.info(f"Could not connect through specified port. {exception}")
         return False
 
 
@@ -43,8 +43,7 @@ async def get_external_ip():
                 response.raise_for_status()
                 return (await response.text()).strip()
     except (aiohttp.ClientError, asyncio.TimeoutError) as error:
-        logging.error(error)
-        print(f"Could not connect to the specified URL, reason: {error}")
+        logging.error(f"Could not connect to the specified URL, reason: {error}")
         return None
 
 
@@ -76,7 +75,7 @@ async def on_ready():
     if not update_status.is_running():
         update_status.start()
     for guild in bot.guilds:
-        print(
+        logging.info(
             f"{bot.user} is connected to the following guild:\n"
             f"{guild.name}(id: {guild.id})\n"
         )
@@ -120,4 +119,4 @@ def create_command(name, ping_port, connection_port):
 
 
 load_command_settings()
-bot.run(TOKEN)
+bot.run(TOKEN, log_handler=None)
