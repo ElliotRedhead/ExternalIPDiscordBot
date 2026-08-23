@@ -69,6 +69,7 @@ async def update_status():
             status=discord.Status.online,
             activity=status,
         )
+    return external_ip
 
 
 @bot.event
@@ -118,6 +119,17 @@ def create_command(name, ping_port, connection_port):
             )
 
     return server_check
+
+
+@bot.command(name="refresh_status", help="Refreshes the external IP output.")
+async def refresh_discord_status(context):
+    external_ip = await update_status()
+    if external_ip is None:
+        await context.send(
+            "Could not determine the server's external IP, please try again later."
+        )
+        return
+    await context.send(f"Discord status refreshed with IP:{external_ip}")
 
 
 load_command_settings()
