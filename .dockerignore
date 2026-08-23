@@ -1,2 +1,5 @@
 .env
 commands.json
+.git
+venv
+*.log
