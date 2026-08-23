@@ -12,7 +12,7 @@ Commands to display connection instructions for each service.
 
 ### Running in Docker (Simplified)
 
-5. In a terminal navigate to the repo and run `source startdocker.sh` (Linux) or `bash startdocker.sh` (Windows).
+5. In a terminal navigate to the repo and run `bash startdocker.sh`. The bot runs in the background and restarts automatically; view its output with `docker logs -f externalipdiscordbot`.
 
 ### Running without Docker
 
