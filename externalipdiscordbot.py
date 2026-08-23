@@ -50,8 +50,8 @@ async def get_external_ip():
 
 
 def load_command_settings():
-    file = open("commands.json")
-    json_data = json.load(file)
+    with open("commands.json") as file:
+        json_data = json.load(file)
     for server_instance in json_data:
         create_command(
             server_instance["name"],
