@@ -19,6 +19,10 @@ Commands to display connection instructions for each service.
 5. Install dependencies with pip `pip install -r requirements.txt`
 6. Run `python externalipdiscordbot.py`
 
+## Notes
+
+The server check connects to the host's own external IP, so it relies on the router supporting NAT loopback (hairpinning). Without it, commands may report "may not be running" even when the server is up.
+
 ## Supporting Resources
 
 [RealPython.com](https://realpython.com/how-to-make-a-discord-bot-python/)
