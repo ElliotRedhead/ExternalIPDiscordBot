@@ -22,6 +22,11 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+# Lines that host scripts append to this file (e.g. out-of-memory kills)
+# are sent to the bot's owner as direct messages.
+ALERTS_FILE = "alerts/alerts.log"
+alerts_read_offset = None
+
 
 async def port_is_open(ip, port):
     try:
@@ -72,11 +77,45 @@ async def update_status():
     return external_ip
 
 
+@tasks.loop(seconds=30)
+async def forward_alerts():
+    global alerts_read_offset
+    try:
+        alerts_size = os.path.getsize(ALERTS_FILE)
+    except OSError:
+        # no file yet: everything written to it later is new
+        alerts_read_offset = 0
+        return
+    if alerts_read_offset is None:
+        # skip alerts written before the bot started
+        alerts_read_offset = alerts_size
+        return
+    if alerts_size < alerts_read_offset:
+        # the file was truncated or replaced, start again from the top
+        alerts_read_offset = 0
+    if alerts_size == alerts_read_offset:
+        return
+    with open(ALERTS_FILE) as file:
+        file.seek(alerts_read_offset)
+        new_alerts = file.read()
+        alerts_read_offset = file.tell()
+    owner = (await bot.application_info()).owner
+    for alert in new_alerts.splitlines():
+        if alert.strip():
+            logging.info(f"Sending alert: {alert}")
+            try:
+                await owner.send(alert)
+            except discord.HTTPException as error:
+                logging.error(f"Could not send alert to {owner}: {error}")
+
+
 @bot.event
 async def on_ready():
     logging.info("Discord bot startup complete, ready to accept requests.")
     if not update_status.is_running():
         update_status.start()
+    if not forward_alerts.is_running():
+        forward_alerts.start()
     for guild in bot.guilds:
         logging.info(
             f"{bot.user} is connected to the following guild:\n"

@@ -23,6 +23,8 @@ Commands to display connection instructions for each service.
 
 The server check connects to the host's own external IP, so it relies on the router supporting NAT loopback (hairpinning). Without it, commands may report "may not be running" even when the server is up.
 
+Alerts: any line appended to `alerts/alerts.log` is sent to the bot application's owner as a direct message within 30 seconds (lines written while the bot was down are skipped). Host scripts can use this for things like out-of-memory kills.
+
 ## Supporting Resources
 
 [RealPython.com](https://realpython.com/how-to-make-a-discord-bot-python/)
